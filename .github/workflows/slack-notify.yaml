@@ -46,7 +46,10 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           TEXT="📝 [${REPO}] PR 생성/수정: ${PR_TITLE}\n👤 ${ACTOR}\n🔗 ${PR_URL}"
-          payload=$(printf '{"text":"%s"}' "$TEXT")
+
+          # 💡 여기가 수정됨 (printf -> jq)
+          # jq가 알아서 줄바꿈이랑 따옴표 이스케이프 처리 다 해줌
+          payload=$(jq -n --arg text "$TEXT" '{"text": $text}')
 
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
