@@ -27,14 +27,13 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           TEXT="🟢 [${REPO}] ${ACTOR}가 '${REF_NAME}' 브랜치에 push 했습니다."
-          payload=$(printf '{"text":"%s"}' "$TEXT")
+          # 💡 여기도 jq로 바꿔
+          payload=$(jq -n --arg text "$TEXT" '{"text": $text}')
 
-          # 🔔 공용 채널(#hotelhub-general)
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_GENERAL_WEBHOOK"
 
-          # 🔔 레포 전용 채널
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_REPO_WEBHOOK"
@@ -66,7 +65,8 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           TEXT="✅ [${REPO}] PR 머지 완료: ${PR_TITLE}\n👤 ${ACTOR}\n🔗 ${PR_URL}"
-          payload=$(printf '{"text":"%s"}' "$TEXT")
+          # 💡 여기도 jq로 바꿔
+          payload=$(jq -n --arg text "$TEXT" '{"text": $text}')
 
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
