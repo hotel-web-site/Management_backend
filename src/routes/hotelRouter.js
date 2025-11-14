@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { Hotel } from '../models/hotel.model.js'; // 호텔 모델
-import { Business } from '../models/business.model.js'; // 사업자 모델
+import { Hotel } from '../models/hotel.js'; // 호텔 모델
+import { Business } from '../models/business.js'; // 사업자 모델
 import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
 // import { authMiddleware } from '../middlewares/auth.middleware.js'; // (user-backend에서 만들 로그인 미들웨어)
 

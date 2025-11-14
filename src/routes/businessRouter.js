@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
-import { Business } from '../models/business.model.js'; // 
-import { User } from '../models/user.model.js'; // user-backend가 만들 'User' (일단 임시)
+import { Business } from '../models/business.js'; // 사업자 모델
+import { User } from '../models/user.js'; // user-backend가 만들 'User' (일단 임시)
 // import { authMiddleware } from '../middlewares/auth.middleware.js'; // (나중에 만들 로그인 검증)
 
 const router = Router();

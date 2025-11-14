@@ -4,8 +4,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 // 라우터 (안내데스크) Import
-import businessRouter from './routes/business.router.js';
-import hotelRouter from './routes/hotel.router.js';
+import businessRouter from './src/routes/businessRouter.js';
+import hotelRouter from './src/routes/hotelRouter.js';
 // import userRouter from './routes/user.router.js'; // (user-backend용 만들 거)
 
 // .env 변수 로드
