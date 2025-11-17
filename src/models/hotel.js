@@ -9,7 +9,7 @@ const hotelSchema = new Schema(
             ref: 'Business', // 
             required: true,
         },
-        // 2. 호텔 기본 정보 (스샷 참고)
+        // 2. 호텔 기본 정보
         name: {
             type: String,
             required: true,
