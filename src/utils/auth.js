@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
+
 import User from '../models/user.js';
 import { Business } from "../models/business.js";
+=======
+import { User } from '../models/user.js';
+import { Business } from "../models/business";
+
 
 export const authMiddleware = async (req, res, next) => {
     try {
@@ -40,7 +45,11 @@ export const adminAuthMiddleware = requireRole('admin');
 // 4. (니가 만들) '승인된 사업자' 전용 문지기 (니가 짰던 거 업그레이드)
 export const businessAuthMiddleware = async (req, res, next) => {
     try {
+
         const userId = req.user._id;
+=======
+        const userId = req.user._id; // 
+
 
         const business = await Business.findOne({ user: userId });
         if (!business) {

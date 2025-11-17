@@ -6,9 +6,12 @@ import mongoose from 'mongoose';
 // 라우터 (안내데스크) Import
 import businessRouter from './src/routes/businessRouter.js';
 import hotelRouter from './src/routes/hotelRouter.js';
+
 // 👇 1. (추가) '가라' 로그인에 필요한 놈들
 import jwt from 'jsonwebtoken';
 import User from './src/models/user.js';
+=======
+// import userRouter from './routes/user.router.js'; // (user-backend용 만들 거)
 
 // .env 변수 로드
 const { PORT, MONGO_URI, FRONT_ORIGIN } = process.env;

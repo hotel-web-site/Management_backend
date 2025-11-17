@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { Hotel } from '../models/hotel.js'; // 호텔 모델
+
 import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
+=======
+import { Business } from '../models/business.js'; // 사업자 모델
+import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
+import { businessAuthMiddleware } from '../utils/authMiddleware.js';
+
 import { authMiddleware, businessAuthMiddleware } from '../utils/auth.js';
 
 const router = Router();
