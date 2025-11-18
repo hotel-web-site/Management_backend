@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 
-// 라우터 (안내데스크) Import
+// 라우터 (안내데스크) Import..
 import businessRouter from './src/routes/businessRouter.js';
 import hotelRouter from './src/routes/hotelRouter.js';
 import authRoutes from './src/routes/authRoutes.js'
