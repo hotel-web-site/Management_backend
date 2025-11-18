@@ -6,12 +6,7 @@ import mongoose from 'mongoose';
 // 라우터 (안내데스크) Import
 import businessRouter from './src/routes/businessRouter.js';
 import hotelRouter from './src/routes/hotelRouter.js';
-
-// 👇 1. (추가) '가라' 로그인에 필요한 놈들
-import jwt from 'jsonwebtoken';
-import User from './src/models/user.js';
-=======
-// import userRouter from './routes/user.router.js'; // (user-backend용 만들 거)
+import authRoutes from './src/routes/authRoutes.js'
 
 // .env 변수 로드
 const { PORT, MONGO_URI, FRONT_ORIGIN } = process.env;
@@ -45,40 +40,14 @@ app.get('/api', (req, res) => {
     res.status(200).send('API 서버 살아있음 (Management)');
 });
 
-// 👇 2. (추가) '가라' 로그인 API
-app.post('/api/test/login', async (req, res) => {
-    try {
-        // 1. 니 '가짜' 유저를 찾음 (하드코딩 ID)
-        const userId = '691b0c1639f9667d48386d87'; // 
-        const user = await User.findById(userId);
-
-        if (!user) throw new Error('테스트 유저가 DB에 없음');
-
-        // 2. 토큰 발급
-        const token = jwt.sign(
-            { id: user._id, role: user.role }, // 
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        res.status(200).json({
-            message: '가라 로그인 성공 (토큰 1시간짜리)',
-            token: token,
-            user: user,
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
 // "사업자" 관련 API는 이쪽으로
 app.use('/api/business', businessRouter);
 
 // "호텔" 관련 API는 이쪽으로
 app.use('/api/hotels', hotelRouter);
 
-// "유저" 관련 API (user-backend꺼. 그 서버가 따로 돌면 이건 필요 없음)
-// app.use('/api/users', userRouter);
+// 회원가입/로그인 (/api/auth/signup, /api/auth/login)
+app.use('/api/auth', authRoutes);
 
 // ---------------------------------
 // (필수) 에러 핸들링 미들웨어

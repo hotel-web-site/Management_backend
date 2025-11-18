@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
 import { Business } from '../models/business.js'; // 사업자 모델
-
 import User from '../models/user.js';
-=======
-import { User } from '../models/user.js'; // user-backend가 만들 'User' (일단 임시)=
-
 import { authMiddleware, adminAuthMiddleware } from '../utils/auth.js';
 
 const router = Router();
@@ -56,11 +52,7 @@ router.get('/admin/pending',
 
 // 관리자가 '승인' 처리 (From: 관리자 프론트)
 // (관리자만 써야 함)
-
 router.patch('/admin/approved/:businessId',
-=======
-router.patch('/admin/pending',
-
     authMiddleware,      // 1. 로그인했냐?
     adminAuthMiddleware,
     async (req, res, next) => {
@@ -93,11 +85,7 @@ router.patch('/admin/pending',
     });
 
 // 관리자가 '거부' 처리 (From: 관리자 프론트)
-
 router.patch('/admin/rejected/:businessId',
-=======
-router.patch('/admin/approve/:businessId',
-
     authMiddleware,      // 1. 로그인했냐?
     adminAuthMiddleware, // 2. 관리자냐?
     async (req, res, next) => {

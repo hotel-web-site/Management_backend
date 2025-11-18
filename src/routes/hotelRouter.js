@@ -1,13 +1,8 @@
 import { Router } from 'express';
 import { Hotel } from '../models/hotel.js'; // 호텔 모델
-
-import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
-=======
-import { Business } from '../models/business.js'; // 사업자 모델
-import { s3Uploader } from '../utils/s3Uploader.js'; // S3 업로더
-import { businessAuthMiddleware } from '../utils/authMiddleware.js';
-
+import { s3Uploader, s3 } from '../utils/s3Uploader.js'; // S3 업로더
 import { authMiddleware, businessAuthMiddleware } from '../utils/auth.js';
+import { DeleteObjectsCommand } from '@aws-sdk/client-s3'; // 삭제 명령 가져오기
 
 const router = Router();
 
@@ -22,9 +17,9 @@ router.post(
         try {
             const { name, address, description, star_rating, amenities_list } =
                 req.body;
-            
+
             // 2. businessAuthMiddleware가 넣어준 req.business._id를 사용
-            const businessId = req.business._id; 
+            const businessId = req.business._id;
 
             const newHotel = await Hotel.create({
                 business: businessId, // '어떤 사업자'의 호텔인지 명시
@@ -178,11 +173,35 @@ router.delete(
             }
             // 2. 🚨 (소유권 검증) 
             if (hotel.business.toString() !== businessId.toString()) {
-                return res.status(403).json({ message: '내 호텔이 아닙니다.' });
+                return res.status(403).json({ message: '내 호텔이 아닙니다. (권한 없음)' });
             }
-            // 3. (삭제)
+            // 3. 🗑️ (S3 이미지 삭제 로직)
+            if (hotel.images && hotel.images.length > 0) {
+                try {
+                    // (1) URL에서 'Key'만 발라내기
+                    const keys = hotel.images.map((imageUrl) => {
+                        const urlParts = new URL(imageUrl);
+                        // 🚨 [수정] decodeURIComponent()로 감싸야 한글 파일도 지워짐!
+                        const decodedKey = decodeURIComponent(urlParts.pathname.substring(1));
+                        return { Key: decodedKey };
+                    });
+                    console.log('🗑️ 삭제할 S3 Keys:', keys);
+                    // (2) S3에 삭제 명령
+                    const deleteCommand = new DeleteObjectsCommand({
+                        Bucket: process.env.S3_BUCKET,
+                        Delete: {
+                            Objects: keys,
+                        },
+                    });
+                    await s3.send(deleteCommand);
+                    console.log('✅ S3 이미지 삭제 명령 전송 완료');
+                } catch (s3Error) {
+                    console.error('⚠️ S3 이미지 삭제 실패 (DB는 지움):', s3Error);
+                }
+            }
+            // 4. (DB 삭제)
             await Hotel.findByIdAndDelete(hotelId);
-            res.status(200).json({ message: '호텔이 삭제되었습니다.' });
+            res.status(200).json({ message: '호텔과 이미지가 삭제되었습니다.' });
         } catch (error) {
             next(error);
         }

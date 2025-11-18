@@ -7,10 +7,13 @@ import path from 'path'
 const { AWS_REGION, S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, } = process.env
 
 // 2. S3 클라이언트 설정 (AWS SDK v3)
-const s3 = new S3Client({
+export const s3 = new S3Client({
     region: AWS_REGION,
-    credentials: { accessKeyId: AWS_ACCESS_KEY_ID, secretAccessKey: AWS_SECRET_ACCESS_KEY, },
-})
+    credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    },
+});
 
 // 3. Multer-S3 스토리지 엔진 설정
 const storage = multerS3({
