@@ -1,5 +1,5 @@
 // 호텔 모델
-import { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose'
 
 const hotelSchema = new Schema(
     {
@@ -47,6 +47,6 @@ const hotelSchema = new Schema(
     {
         timestamps: true,
     }
-);
+)
 
-export const Hotel = model('Hotel', hotelSchema);
+export const Hotel = model('Hotel', hotelSchema)

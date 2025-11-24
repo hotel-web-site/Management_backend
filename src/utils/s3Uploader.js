@@ -13,7 +13,7 @@ export const s3 = new S3Client({
         accessKeyId: AWS_ACCESS_KEY_ID,
         secretAccessKey: AWS_SECRET_ACCESS_KEY,
     },
-});
+})
 
 // 3. Multer-S3 스토리지 엔진 설정
 const storage = multerS3({
