@@ -9,14 +9,14 @@ const router = Router()
 // 가입
 router.post(
     '/register',
-    authMiddleware,
+    // authMiddleware, // (나중에 주석 해제)
     s3Uploader.single('license'),
     async (req, res, next) => {
         try {
             // 1. S3 업로드 성공 URL
             const s3Url = req.file.location
             // 2. 신청한 유저 ID (로그인 미들웨어에서 받아옴)
-            const userId = req.user._id
+            const userId = req.user._id;
             // 3. 프론트에서 보낸 나머지 정보
             const { business_name, business_number } = req.body
             // 4. DB에 '승인 대기' 문서 생성
@@ -42,13 +42,13 @@ router.get('/admin/pending',
     async (req, res, next) => {
         try {
             const pendingList = await Business.find({ status: 'pending' })
-                .populate('user', 'name email') // user 정보도 같이 가져오기 (이름, 이메일만)
+                .populate('user', 'name email'); // user 정보도 같이 가져오기 (이름, 이메일만)
             console.log(pendingList)
-            res.status(200).json(pendingList)
+            res.status(200).json(pendingList);
         } catch (error) {
-            next(error)
+            next(error);
         }
-    })
+    });
 
 // 관리자가 '승인' 처리 (From: 관리자 프론트)
 // (관리자만 써야 함)

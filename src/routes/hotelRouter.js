@@ -34,7 +34,7 @@ router.post(
 // 2. 내 호텔 목록 조회 (From: 사업자 프론트)
 router.get(
     '/my-hotels',
-    authMiddleware,
+    // authMiddleware,
     businessAuthMiddleware, // '승인된 사업자'인지 검증
     async (req, res, next) => {
         try {
@@ -52,7 +52,7 @@ router.get(
 // (S3 업로더 사용)
 router.post(
     '/:hotelId/images',
-    authMiddleware,
+    // authMiddleware,
     businessAuthMiddleware, // 1. 사업자 검증
     s3Uploader.array('hotelImages', 10), // 2. S3 업로드 (최대 10개, <input name="hotelImages">)
     async (req, res, next) => {

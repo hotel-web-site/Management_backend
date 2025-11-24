@@ -11,7 +11,7 @@ const businessSchema = new Schema(
             required: true,
             unique: true, // 한 명의 유저는 하나의 사업자만 가짐
         },
-        // 2. 사업자 정보
+        // 2. 사업자 정보 (스샷에 있던 거)
         business_name: {
             type: String,
             required: true,
