@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -91,4 +91,4 @@ userSchema.methods.toSafeJSON = function () {
 // 📧 이메일 인덱스 (unique)
 userSchema.index({ email: 1 }, { unique: true });
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

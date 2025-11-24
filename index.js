@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
+import morgan from 'morgan'
 
 // 라우터 (안내데스크) Import..
 import businessRouter from './src/routes/businessRouter.js'
@@ -20,6 +21,7 @@ mongoose.connect(MONGO_URI).then(() => console.log('✅ MongoDB 연결 성공'))
 
 // Express 앱 생성 및 미들웨어
 const app = express()
+app.use(morgan('dev'))
 
 // 1. CORS 설정 (프론트 서버 주소 허용)
 app.use(cors({ origin: FRONT_ORIGIN }))
