@@ -44,7 +44,7 @@ app.use('/api/auth', authRoutes)
 
 // (필수) 에러 핸들링 미들웨어
 app.use((err, req, res, next) => {
-    console.error('❌ 전체 에러 발생:', err.stack);
+    console.error('❌ 전체 에러 발생:', err.stack)
     res.status(500).json({
         message: err.message || '서버에서 에러가 발생했습니다.',
     });
