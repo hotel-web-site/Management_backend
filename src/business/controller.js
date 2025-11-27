@@ -29,7 +29,7 @@ export const approve = async (req, res, next) => {
     try {
         const { businessId } = req.params;
 
-        // Service(요리사)한테 "야, 얘 승인 시켜"라고 명령
+        // Service한테 "야, 얘 승인 시켜"라고 명령
         const result = await businessService.approveBusiness(businessId);
 
         res.status(200).json({
@@ -47,7 +47,7 @@ export const reject = async (req, res, next) => {
     try {
         const { businessId } = req.params;
 
-        // Service(요리사)한테 "야, 얘 쳐내(거부)"라고 명령
+        // Service한테 "야, 얘 쳐내(거부)"라고 명령
         const result = await businessService.rejectBusiness(businessId);
 
         res.status(200).json({
