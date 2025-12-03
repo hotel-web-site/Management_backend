@@ -18,7 +18,7 @@ export const updateStatus = async (req, res, next) => {
         const { status } = req.body;
 
         if (!['confirmed', 'cancelled', 'completed'].includes(status)) {
-            // 유성준 모델 enum에 rejected가 없어서 cancelled로 처리하거나 협의 필요.
+            // 유저 모델 enum에 rejected가 없어서 cancelled로 처리하거나 협의 필요.
             // 일단 있는 걸로 함.
             // return res.status(400).json({ message: '잘못된 상태 값' });
         }
