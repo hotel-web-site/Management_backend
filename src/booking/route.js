@@ -25,4 +25,11 @@ router.get('/admin/all',
     bookingController.getAdminList
 );
 
+// PATCH /api/bookings/admin/:bookingId/cancel
+router.patch('/admin/:bookingId/cancel',
+    authMiddleware,
+    adminAuthMiddleware, // 관리자만!
+    bookingController.cancelByAdmin
+);
+
 export default router;

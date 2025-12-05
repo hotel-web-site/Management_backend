@@ -31,6 +31,10 @@ const hotelSchema = new Schema(
         amenities_list: [
             { type: String },
         ],
+        isRecommended: {
+            type: Boolean,
+            default: false, // 기본은 추천 안 함
+        },
     },
     { timestamps: true }
 );

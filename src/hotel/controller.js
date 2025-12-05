@@ -101,3 +101,16 @@ export const forceDelete = async (req, res, next) => {
         next(error);
     }
 };
+
+// [관리자] 추천 토글
+export const toggleRecommend = async (req, res, next) => {
+    try {
+        const { hotelId } = req.params;
+        const result = await hotelService.toggleRecommendation(hotelId);
+        
+        const msg = result.isRecommended ? '추천 호텔로 등록되었습니다.' : '추천이 해제되었습니다.';
+        res.status(200).json({ message: msg, hotel: result });
+    } catch (error) {
+        next(error);
+    }
+};

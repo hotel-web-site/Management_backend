@@ -87,15 +87,15 @@ export const deleteHotel = async (hotelId, businessId) => {
 // [관리자] 전체 호텔 목록 조회 (검색/필터 추가)
 export const getAllHotels = async (page = 1, limit = 10, keyword = '') => {
     const skip = (page - 1) * limit;
-    
+
     // 검색 조건 (이름 or 주소에 키워드가 포함되면 검색)
-    const query = keyword 
-        ? { 
+    const query = keyword
+        ? {
             $or: [
                 { name: { $regex: keyword, $options: 'i' } },
                 { address: { $regex: keyword, $options: 'i' } }
-            ] 
-          } 
+            ]
+        }
         : {};
 
     const hotels = await Hotel.find(query)
@@ -138,4 +138,16 @@ export const forceDeleteHotel = async (hotelId) => {
     // DB 삭제
     await Hotel.findByIdAndDelete(hotelId);
     return true;
+};
+
+// [관리자] 추천 호텔 설정/해제 (Toggle)
+export const toggleRecommendation = async (hotelId) => {
+    const hotel = await Hotel.findById(hotelId);
+    if (!hotel) throw new Error('호텔이 없습니다.');
+
+    // true면 false로, false면 true로 뒤집기
+    hotel.isRecommended = !hotel.isRecommended;
+    await hotel.save();
+
+    return hotel;
 };

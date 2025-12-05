@@ -17,6 +17,7 @@ import statsRouter from './src/stats/route.js';
 import bookingRouter from './src/booking/route.js';
 import paymentRouter from './src/payment/route.js';
 import userManageRouter from './src/user-manage/route.js';
+import reviewRouter from './src/review/route.js';
 
 const { PORT, FRONT_ORIGIN } = process.env;
 
@@ -43,6 +44,7 @@ app.use('/api/stats', statsRouter);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/users', userManageRouter);
+app.use('/api/reviews', reviewRouter);
 
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err.stack);

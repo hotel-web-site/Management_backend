@@ -45,3 +45,17 @@ export const getAdminList = async (req, res, next) => {
         next(error);
     }
 };
+
+// [관리자] 강제 취소
+export const cancelByAdmin = async (req, res, next) => {
+    try {
+        const { bookingId } = req.params;
+        const result = await bookingService.cancelBookingByAdmin(bookingId);
+        res.status(200).json({
+            message: '관리자 권한으로 예약이 취소되었습니다.',
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};

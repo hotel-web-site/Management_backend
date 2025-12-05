@@ -61,3 +61,19 @@ export const getAdminAllBookings = async (page, limit, startDate, endDate, statu
 
     return { bookings, total, page, totalPages: Math.ceil(total / limit) };
 };
+
+// [관리자] 예약 강제 취소
+export const cancelBookingByAdmin = async (bookingId) => {
+    const booking = await Booking.findById(bookingId);
+    if (!booking) throw new Error('예약 정보를 찾을 수 없습니다.');
+
+    // 이미 취소된 거면 패스
+    if (booking.status === 'cancelled') {
+        throw new Error('이미 취소된 예약입니다.');
+    }
+
+    booking.status = 'cancelled';
+    await booking.save();
+
+    return booking;
+};

@@ -63,4 +63,12 @@ router.delete('/admin/:hotelId',
     hotelController.forceDelete
 );
 
+// 👇 [추가] 관리자가 "이거 메인에 띄워!" 하고 명령하는 버튼
+// PATCH /api/hotels/admin/:hotelId/recommend
+router.patch('/admin/:hotelId/recommend',
+    authMiddleware,
+    adminAuthMiddleware, // 관리자만 가능
+    hotelController.toggleRecommend
+);
+
 export default router;
