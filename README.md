@@ -75,18 +75,15 @@ src/
 ## 🚀 Getting Started
 
 ### 1. Installation
-
-```Bash
-$git clone [https://github.com/hotel-web-site/Management_backend.git$](https://github.com/hotel-web-site/Management_backend.git$) cd Management_backend
+```bash
+$git clone https://github.com/hotel-web-site/Management_backend.git$ cd Management_backend
 $ npm install
 ```
 
 ### 2. Environment Setup (.env)
-
 루트 경로에 `.env` 파일을 생성하고 다음 변수를 설정하세요.
-
-```
-PORT=4000  # Docker 환경 기준
+```env
+PORT=4000  # Docker 사용 시 내부 포트
 MONGO_URI=mongodb+srv://<YOUR_DB_URI>
 FRONT_ORIGIN=http://localhost:5173
 JWT_SECRET=<YOUR_SECRET_KEY>
@@ -98,14 +95,27 @@ AWS_ACCESS_KEY_ID=<YOUR_AWS_KEY>
 AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET>
 ```
 
+### 3. Run Server
+
+**Option A. Local Development**
+```bash
+$ npm run dev
+```
+
+**Option B. Docker Compose (Full Stack)**
+본 프로젝트는 Docker Compose를 통해 Frontend/Database와 통합 배포 환경을 지원합니다.
+```bash
+# Build & Run
+$ docker-compose up --build
+```
+
 ---
 
 ## 📝 API Documentation
-
-API 명세는 Notion 또는 Postman Collection을 참고해주세요. (팀 내부 문서 링크)
+API 명세는 Notion 또는 Postman Collection을 참고해주세요.
+*(팀 내부 문서 링크)*
 
 ---
 
-#### 👨‍💻 Developer
-
-- Backend: 이예빈 (Management & Ops Core)
+### 👨‍💻 Developer
+- **Backend:** 이예빈 (Management & Ops Core)
