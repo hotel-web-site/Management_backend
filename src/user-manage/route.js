@@ -17,7 +17,7 @@ router.get('/admin/all',
 router.patch('/admin/:userId/status', 
     authMiddleware, 
     adminAuthMiddleware, 
-    userManageController.toggleBlock
+    userManageController.toggleStatus
 );
 
 export default router;

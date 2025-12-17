@@ -1,4 +1,4 @@
-import User from '../auth/model.js'; // 유성준꺼 모델 재활용
+import User from '../auth/model.js';
 
 // 1. 전체 회원 목록 조회 (관리자용)
 export const getUserList = async (page = 1, limit = 10) => {
@@ -20,12 +20,17 @@ export const getUserList = async (page = 1, limit = 10) => {
 
 // 2. 회원 차단/해제 토글 (isActive: true <-> false)
 export const toggleUserStatus = async (userId) => {
+    // 1. 유저 찾기
     const user = await User.findById(userId);
-    if (!user) throw new Error('회원을 찾을 수 없습니다.');
+    if (!user) throw new Error("사용자를 찾을 수 없습니다.");
 
-    // 상태 뒤집기 (활성 -> 차단, 차단 -> 활성)
-    user.isActive = !user.isActive;
-    await user.save();
+    // 2. 상태 뒤집기 (true <-> false)
+    const newStatus = !user.isActive;
 
-    return user;
+    // 3. 🚨 save() 대신 updateOne() 사용 (이게 핵심!)
+    // 비밀번호 필드가 없어도 강제로 상태만 업데이트함
+    await User.updateOne({ _id: userId }, { isActive: newStatus });
+
+    // 4. 결과 리턴 (프론트 반영용)
+    return { ...user.toObject(), isActive: newStatus };
 };

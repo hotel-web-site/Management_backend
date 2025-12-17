@@ -18,6 +18,7 @@ import bookingRouter from './src/booking/route.js';
 import paymentRouter from './src/payment/route.js';
 import userManageRouter from './src/user-manage/route.js';
 import reviewRouter from './src/review/route.js';
+import auditRouter from './src/audit/route.js';
 
 const { PORT, FRONT_ORIGIN } = process.env;
 
@@ -26,8 +27,12 @@ connectDB();
 
 const app = express();
 app.use(morgan('dev'));
-app.use(cors({ 
-    origin: process.env.FRONT_ORIGIN,
+app.use(cors({
+    origin: [
+        process.env.FRONT_ORIGIN, // http://localhost:5173 (로컬 개발용)
+        "http://localhost",       // 👈 (도커/Nginx 접속용)
+        "http://127.0.0.1:5173"   // (혹시 몰라 IP로 접속할 때 대비)
+    ],
     credentials: true
 }));
 app.use(express.json());
@@ -48,6 +53,7 @@ app.use('/api/bookings', bookingRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/users', userManageRouter);
 app.use('/api/reviews', reviewRouter);
+app.use('/api/audit', auditRouter);
 
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err.stack);
