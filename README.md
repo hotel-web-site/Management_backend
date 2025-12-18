@@ -101,8 +101,8 @@ AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET>
 ---
 
 ## 📝 API Documentation
-
-API 명세는 Notion 또는 Postman Collection을 참고해주세요. (팀 내부 문서 링크)
+API 명세는 Notion 또는 Postman Collection을 참고해주세요.
+*(팀 내부 문서 링크)*
 
 ---
 
