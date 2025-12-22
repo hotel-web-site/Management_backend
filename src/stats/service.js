@@ -2,42 +2,60 @@ import Payment from '../payment/model.js';
 import Reservation from '../booking/model.js'
 import Hotel from '../hotel/model.js';
 
-// 1. [사업자용] 내 호텔 매출 통계 (월별)
+// 1. [사업자용] 내 호텔 통계 (매출 + 예약 상태)
 export const getBusinessStats = async (businessId) => {
-    // 내 호텔들의 ID를 싹 다 가져옴
+    // 1. 내 호텔 ID들 찾기
     const myHotels = await Hotel.find({ business: businessId }).select('_id');
     const hotelIds = myHotels.map(h => h._id);
 
-    // Aggregation (집계) 마법
+    // 2. 💰 [매출] 월별 매출 집계 (기존 코드)
     const monthlySales = await Payment.aggregate([
         {
             $match: {
-                hotel: { $in: hotelIds }, // 내 호텔 결제만 골라내고
-                status: 'paid', // 결제 완료된 것만
+                hotel: { $in: hotelIds },
+                status: 'paid',
             }
         },
         {
             $group: {
                 _id: {
-                    year: { $year: "$createdAt" }, // 연도별
-                    month: { $month: "$createdAt" } // 월별로 묶어
+                    year: { $year: "$createdAt" },
+                    month: { $month: "$createdAt" }
                 },
-                totalSales: { $sum: "$amount" }, // 금액 합치기
-                count: { $sum: 1 } // 결제 건수 세기
+                totalSales: { $sum: "$amount" },
+                count: { $sum: 1 }
             }
         },
-        { $sort: { "_id.year": -1, "_id.month": -1 } } // 최신순 정렬
+        { $sort: { "_id.year": -1, "_id.month": -1 } }
     ]);
 
+    // 3. 📅 [추가됨!] 예약 상태별 건수 (확정, 취소, 완료 등)
+    // 이게 있어야 도넛 차트(PieChart) 그릴 수 있음!
+    const bookingStats = await Reservation.aggregate([
+        {
+            $match: {
+                hotel: { $in: hotelIds } // 내 호텔 예약만
+            }
+        },
+        {
+            $group: {
+                _id: "$status", // 상태별로 묶어 (confirmed, cancelled...)
+                count: { $sum: 1 } // 개수 세기
+            }
+        }
+    ]);
+
+    // 4. 프론트가 쓰기 편하게 포장해서 리턴
     return {
-        totalHotels: hotelIds.length,
-        monthlySales
+        totalHotels: hotelIds.length, // 내 호텔 개수
+        monthlySales,  // 막대 그래프용 (매출)
+        bookingStats   // 도넛 차트용 (예약 현황)
     };
 };
 
-// 2. [관리자용] 전체 통계 (대시보드용)
+// 2. [관리자용] 전체 통계
 export const getAdminStats = async () => {
-    // 총 매출 (전체)
+    // 총 매출
     const totalRevenue = await Payment.aggregate([
         { $match: { status: 'paid' } },
         { $group: { _id: null, total: { $sum: "$amount" } } }
@@ -49,7 +67,8 @@ export const getAdminStats = async () => {
     // 총 호텔 수
     const totalHotels = await Hotel.countDocuments();
 
-    // (심화) 최근 6개월 매출 추이 같은 것도 여기서 뽑으면 됨. 일단은 총계만.
+    // 총 회원 수 (이것도 있으면 좋음)
+    // const totalUsers = await User.countDocuments({ role: 'user' }); 
 
     return {
         revenue: totalRevenue[0]?.total || 0,

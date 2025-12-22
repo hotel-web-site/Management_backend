@@ -33,8 +33,14 @@ const hotelSchema = new Schema(
         ],
         isRecommended: {
             type: Boolean,
-            default: false, // 기본은 추천 안 함
+            default: false,
         },
+        // 👇 [핵심 추가] 이게 없어서 다 '거부'로 뜬 거야!
+        approvalStatus: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending' // 기본값은 대기!
+        }
     },
     { timestamps: true }
 );

@@ -78,3 +78,19 @@ export const addRoomImages = async (roomId, businessId, files) => {
 
     return room;
 };
+
+// 객실 상태만 변경
+export const updateRoomStatus = async (roomId, businessId, status) => {
+    // 1. 방 찾기
+    const room = await Room.findById(roomId);
+    if (!room) throw new Error('객실을 찾을 수 없습니다.');
+
+    // 🔥 2. [추가] 내 호텔 맞는지 검증 (보안 강화!)
+    // checkOwnership은 hotelId를 받으니까 room.hotel을 넘겨야 함
+    await checkOwnership(room.hotel, businessId);
+
+    // 3. 상태 변경
+    room.status = status;
+    await room.save();
+    return room;
+};

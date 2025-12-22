@@ -21,23 +21,37 @@ export const getHotelById = async (hotelId, businessId) => {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) throw new Error('호텔이 없습니다.');
 
-    if (hotel.business.toString() !== businessId.toString()) {
-        throw new Error('권한 없음'); // Controller에서 403 처리할 거임
+    // 👇 [핵심 수정] businessId가 있을 때만(사장님일 때만) 내 호텔인지 검사!
+    // 관리자는 businessId가 null로 들어오니까 이 if문을 건너뜀 (프리패스)
+    if (businessId && hotel.business.toString() !== businessId.toString()) {
+        throw new Error('권한 없음');
     }
     return hotel;
 };
 
 // 호텔 수정
 export const updateHotel = async (hotelId, businessId, data) => {
-    // 소유권 확인 (getHotelById 재사용)
+    // 소유권 확인 (관리자는 businessId가 null이라 통과)
     const hotel = await getHotelById(hotelId, businessId);
 
-    // 데이터 업데이트
+    // 기존 데이터 업데이트
     if (data.name) hotel.name = data.name;
     if (data.address) hotel.address = data.address;
     if (data.description) hotel.description = data.description;
     if (data.star_rating) hotel.star_rating = data.star_rating;
     if (data.amenities_list) hotel.amenities_list = data.amenities_list;
+    if (data.images) hotel.images = data.images; // 이미지도 혹시 모르니
+
+    // 👇 [핵심 추가] 이거 두 개가 없어서 저장이 안 된 거임!
+
+    // 1. 운영 상태 (활성/비활성) - 이건 누구나 변경 가능
+    if (data.status) hotel.status = data.status;
+
+    // 2. 승인 상태 (대기/승인/거부) - 🚨 관리자만 변경 가능하게 보호!
+    // businessId가 null이면 관리자라는 뜻 (컨트롤러 로직상)
+    if (!businessId && data.approvalStatus) {
+        hotel.approvalStatus = data.approvalStatus;
+    }
 
     await hotel.save();
     return hotel;

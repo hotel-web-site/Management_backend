@@ -16,17 +16,23 @@ export const create = async (req, res, next) => {
 // 관리자랑 사업자 둘 다 이거 씀
 export const getHotels = async (req, res, next) => {
     try {
-        // 안전장치: 로그인 정보 없으면 컷
-        if (!req.user) {
+        // 👇 [수정] req.user가 없을 경우를 대비해서 req.business도 확인!
+        // (미들웨어 종류에 따라 어디에 담길지 모르니까 둘 다 체크하는 센스)
+        const user = req.user || req.business;
+
+        if (!user) {
             return res.status(401).json({ message: '로그인 정보가 없습니다.' });
         }
 
-        const { role, _id } = req.user;
+        const role = user.role; // role 꺼내기
+        const userId = user._id; // id 꺼내기
+
         let query = {};
 
         // 🚨 사업자(Business)라면? -> '내 호텔'만 검색
+        // (가끔 role이 없을 수도 있으니 안전하게 처리)
         if (role === 'business') {
-            query = { business: _id };
+            query = { business: userId };
         }
 
         // DB 조회 (페이지네이션 없이 일단 싹 다 줌 - 관리자 페이지용)
@@ -41,19 +47,20 @@ export const getHotels = async (req, res, next) => {
     }
 };
 
-// 3. 호텔 상세 조회 (사업자용)
+// 3. 호텔 상세 조회
 export const getOne = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
-        // 주의: 만약 관리자가 접속하면 req.business가 없을 수 있음.
-        // 일단 사업자 로직 유지 (관리자 상세 조회는 별도로 필요할 수 있음)
-        const businessId = req.business?._id || req.user?._id;
+
+        // 🕵️‍♂️ [수정] 관리자면 businessId를 null로 설정해서 감시 피하기
+        // req.user(관리자) 또는 req.business(사장님) 확인
+        const user = req.user || req.business;
+        const businessId = user.role === 'admin' ? null : user._id;
 
         const hotel = await hotelService.getHotelById(hotelId, businessId);
         res.status(200).json(hotel);
     } catch (error) {
-        if (error.message === '권한 없음') return res.status(403).json({ message: '내 호텔이 아닙니다.' });
-        if (error.message === '호텔이 없습니다.') return res.status(404).json({ message: error.message });
+        // ... 에러 처리 그대로 ...
         next(error);
     }
 };
@@ -62,12 +69,14 @@ export const getOne = async (req, res, next) => {
 export const update = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
-        const businessId = req.business._id;
+
+        // 🕵️‍♂️ [수정] 여기도 관리자면 businessId 없이 통과!
+        const user = req.user || req.business;
+        const businessId = user.role === 'admin' ? null : user._id;
+
         const updated = await hotelService.updateHotel(hotelId, businessId, req.body);
         res.status(200).json(updated);
     } catch (error) {
-        if (error.message === '권한 없음') return res.status(403).json({ message: '내 호텔이 아닙니다.' });
-        if (error.message === '호텔이 없습니다.') return res.status(404).json({ message: error.message });
         next(error);
     }
 };
@@ -124,6 +133,29 @@ export const toggleRecommend = async (req, res, next) => {
 
         const msg = result.isRecommended ? '추천 호텔로 등록되었습니다.' : '추천이 해제되었습니다.';
         res.status(200).json({ message: msg, hotel: result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [관리자] 호텔 승인 상태 변경 (승인/거부)
+export const updateStatus = async (req, res, next) => {
+    try {
+        const { hotelId } = req.params;
+        const { approvalStatus } = req.body; // 'approved' 또는 'rejected'
+
+        const hotel = await Hotel.findByIdAndUpdate(
+            hotelId,
+            { approvalStatus },
+            { new: true }
+        );
+
+        if (!hotel) return res.status(404).json({ message: '호텔을 찾을 수 없습니다.' });
+
+        res.status(200).json({
+            message: `호텔이 ${approvalStatus === 'approved' ? '승인' : '거부'} 되었습니다.`,
+            hotel
+        });
     } catch (error) {
         next(error);
     }

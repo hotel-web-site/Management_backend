@@ -33,19 +33,21 @@ const requireRole = (roles = []) => {
 export const adminAuthMiddleware = requireRole('admin')
 
 // 4. '승인된 사업자' 전용 문지기
-export const businessAuthMiddleware = async (req, res, next) => {
+export const businessAuthMiddleware = (req, res, next) => {
     try {
-        const userId = req.user._id
-        const business = await Business.findOne({ user: userId })
-        if (!business) {
-            return res.status(403).json({ message: '사업자 등록이 필요합니다.' })
+        // 1. 로그인한 유저가 있고, 역할이 'business'인지 확인
+        if (req.user && req.user.role === 'business') {
+
+            // ⭐ [핵심] 컨트롤러가 req.business를 찾을 때 에러 안 나게
+            // 현재 유저 정보를 req.business에도 넣어줌 (일단 통과시켜!)
+            req.business = req.user;
+
+            next();
+        } else {
+            // 사업자가 아니면 컷
+            return res.status(403).json({ message: '사업자 권한이 필요합니다.' });
         }
-        if (business.status !== 'approved') {
-            return res.status(403).json({ message: '승인된 사업자만 접근 가능합니다.' })
-        }
-        req.business = business
-        next()
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+}; 

@@ -65,3 +65,19 @@ export const uploadImages = async (req, res, next) => {
         next(error);
     }
 };
+
+// 👇 [추가] 객실 상태 변경 (청소중, 공실, 투숙중 등)
+export const updateStatus = async (req, res, next) => {
+    try {
+        const { roomId } = req.params;
+        const businessId = req.business._id; // 내 호텔 객실인지 확인용
+        const { status } = req.body; // 프론트에서 { status: 'cleaning' } 이렇게 보낼 거임
+
+        // 서비스한테 "야, 이 방 상태만 바꿔" 라고 시킴
+        const result = await roomService.updateRoomStatus(roomId, businessId, status);
+        
+        res.status(200).json({ message: '객실 상태 변경 완료', data: result });
+    } catch (error) {
+        next(error);
+    }
+};
