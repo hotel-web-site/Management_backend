@@ -18,7 +18,7 @@ const inquirySchema = new Schema(
             required: true,
         },
         // 관리자 답변 (초기엔 null)
-        answer: {
+        reply: {
             type: String,
             default: null,
         },
