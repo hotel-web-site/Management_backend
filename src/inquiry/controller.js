@@ -46,9 +46,12 @@ export const reply = async (req, res, next) => {
     try {
         const adminId = req.user._id;
         const { inquiryId } = req.params;
-        const { answer } = req.body;
 
-        const result = await inquiryService.replyInquiry(inquiryId, adminId, answer);
+        // 🚨 [수정] 프론트에서 'reply'로 보내니까 여기서도 'reply'로 받아야 함!
+        const { reply } = req.body;
+
+        // 서비스로 넘길 때도 reply로 넘김
+        const result = await inquiryService.replyInquiry(inquiryId, adminId, reply);
         res.status(200).json(result);
     } catch (error) {
         next(error);

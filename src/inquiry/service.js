@@ -13,7 +13,7 @@ export const createInquiry = async (userId, data) => {
 // 2. 문의 목록 조회 (핵심 로직)
 export const getInquiryList = async (userId, role, page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
-    
+
     // 관리자면 전체 조회 ({}), 아니면 내꺼만 조회 ({ author: userId })
     const query = role === 'admin' ? {} : { author: userId };
 
@@ -42,11 +42,12 @@ export const getInquiryById = async (inquiryId, userId, role) => {
 };
 
 // 4. 답변 등록 (관리자용)
-export const replyInquiry = async (inquiryId, adminId, answerText) => {
+export const replyInquiry = async (inquiryId, adminId, replyText) => {
     const inquiry = await Inquiry.findByIdAndUpdate(
         inquiryId,
         {
-            answer: answerText,
+            // 🚨 [수정] DB 필드명도 'reply'로 통일 (프론트에서 inquiry.reply로 보여주니까)
+            reply: replyText,
             isAnswered: true,
             answeredBy: adminId,
             answeredAt: new Date()
