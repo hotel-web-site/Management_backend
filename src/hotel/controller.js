@@ -1,5 +1,6 @@
 import * as hotelService from './service.js';
 import Hotel from './model.js'; // 👈 이거 꼭 있어야 함!
+import * as auditService from '../audit/service.js';
 
 // 1. 호텔 생성
 export const create = async (req, res, next) => {
@@ -100,50 +101,87 @@ export const uploadImages = async (req, res, next) => {
     }
 };
 
-// 6. 삭제
+// 6. 삭제 (로그 추가 - 사장님이 지운 것도 남기면 좋음)
 export const remove = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
         const businessId = req.business._id;
+
+        // 삭제 전에 호텔 이름 잠깐 조회 (로그에 남기려고)
+        const hotel = await Hotel.findById(hotelId);
+
         await hotelService.deleteHotel(hotelId, businessId);
+
+        // 🕵️‍♂️ [로그] 사장님이 직접 삭제
+        if (hotel) {
+            auditService.createLog({
+                adminId: businessId, // 수행자 (사장님)
+                action: "호텔 삭제 (사업자)",
+                target: `Hotel: ${hotel.name} (${hotelId})`,
+                ip: req.ip,
+                details: "사업자가 직접 호텔 삭제함"
+            });
+        }
+
         res.status(200).json({ message: '호텔과 이미지가 삭제되었습니다.' });
     } catch (error) {
+        // ... 에러 처리 ...
         if (error.message === '권한 없음') return res.status(403).json({ message: '내 호텔이 아닙니다.' });
         if (error.message === '호텔이 없습니다.') return res.status(404).json({ message: error.message });
         next(error);
     }
 };
 
-// [관리자] 강제 삭제
+// [관리자] 강제 삭제 (로그 추가)
 export const forceDelete = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
+        // 삭제 전 조회
+        const hotel = await Hotel.findById(hotelId);
+
         await hotelService.forceDeleteHotel(hotelId);
+
+        // 🕵️‍♂️ [로그] 관리자 강제 삭제
+        auditService.createLog({
+            adminId: req.user._id,
+            action: "호텔 강제 삭제 (관리자)",
+            target: `Hotel: ${hotel ? hotel.name : 'Unknown'} (${hotelId})`,
+            ip: req.ip,
+            details: "관리자 권한으로 영구 삭제"
+        });
+
         res.status(200).json({ message: '관리자 권한으로 호텔이 삭제되었습니다.' });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
-// [관리자] 추천 토글
+// [관리자] 추천 토글 (로그 추가)
 export const toggleRecommend = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
         const result = await hotelService.toggleRecommendation(hotelId);
 
         const msg = result.isRecommended ? '추천 호텔로 등록되었습니다.' : '추천이 해제되었습니다.';
+
+        // 🕵️‍♂️ [로그] 추천 변경
+        auditService.createLog({
+            adminId: req.user._id,
+            action: "추천 호텔 변경",
+            target: `Hotel: ${result.name} (${hotelId})`,
+            ip: req.ip,
+            details: `추천 상태: ${result.isRecommended}`
+        });
+
         res.status(200).json({ message: msg, hotel: result });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
 // [관리자] 호텔 승인 상태 변경 (승인/거부)
 export const updateStatus = async (req, res, next) => {
     try {
         const { hotelId } = req.params;
-        const { approvalStatus } = req.body; // 'approved' 또는 'rejected'
+        const { approvalStatus } = req.body;
 
+        // 1. 기능 실행
         const hotel = await Hotel.findByIdAndUpdate(
             hotelId,
             { approvalStatus },
@@ -152,6 +190,22 @@ export const updateStatus = async (req, res, next) => {
 
         if (!hotel) return res.status(404).json({ message: '호텔을 찾을 수 없습니다.' });
 
+        // 2. 🕵️‍♂️ [로그] 안전하게 기록 (여기서 터져도 기능은 멈추지 않게!)
+        try {
+            if (req.user) { // 관리자 정보 있을 때만 기록
+                await auditService.createLog({
+                    adminId: req.user._id,
+                    action: "호텔 승인 상태 변경",
+                    target: `Hotel: ${hotel.name} (${hotelId})`,
+                    ip: req.ip,
+                    details: `상태 변경: ${approvalStatus}`
+                });
+            }
+        } catch (logError) {
+            console.error("감사 로그 기록 실패 (기능은 성공함):", logError);
+        }
+
+        // 3. 응답
         res.status(200).json({
             message: `호텔이 ${approvalStatus === 'approved' ? '승인' : '거부'} 되었습니다.`,
             hotel
